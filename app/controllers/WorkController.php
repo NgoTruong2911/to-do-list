@@ -13,10 +13,14 @@ class WorkController extends Controller
 
     public function index()
     {
-        $works = $this->work_model->getAll();
+        if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
+            $start_date = $_GET['start_date'];
+            $end_date = $_GET['end_date'];
+        }
+        $works = $this->work_model->getAll(isset($start_date) ? $start_date : false, isset($end_date) ? $end_date : false);
         $data = [
             'works' => $works
-         ];
+        ];
         return $this->view('works\index', $data);
     }
 
@@ -27,25 +31,47 @@ class WorkController extends Controller
 
     public function store()
     {
-        var_dump($_POST);
-        die;
-        if ($_SERVER['REQUEST_METHOD']=='POST') {
-            $_POST = filter_input_array(INPUT_POST,FILTER_SANITIZE_STRING);
-            $data = [
-                'name' => trim($_POST['name']),
-                'start_date' => trim($_POST['start_date']),
-                'end_date' => trim($_POST['end_date']),
-                'status' => trim($_POST['status']),
-             ];
-            var_dump($data);
-            die;
-        }
-        var_dump('123');
-        die;
-        $works = $this->work_model->getAll();
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $data = [
-            'works' => $works
-         ];
-        return $this->view('works\add');
+            'name' => trim($_POST['name']),
+            'start_date' => trim($_POST['start_date']),
+            'end_date' => trim($_POST['end_date']),
+            'status' => trim($_POST['status']),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        $this->work_model->addWork($data);
+        header("Location: " . URL_ROOT . "/works");
+    }
+
+    public function edit()
+    {
+        $work_id = $_GET['id'];
+        $work = $this->work_model->getWorkById($work_id);
+        $data = $work;
+        return $this->view('works\edit', $data);
+    }
+
+    public function update()
+    {
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+        $data = [
+            'name' => trim($_POST['name']),
+            'id' => trim($_POST['id']),
+            'start_date' => trim($_POST['start_date']),
+            'end_date' => trim($_POST['end_date']),
+            'status' => trim($_POST['status']),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        $this->work_model->updateWork($data);
+        header("Location: " . URL_ROOT . "/works");
+    }
+
+    public function delete()
+    {
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+        $id = trim($_POST['id']);
+        $this->work_model->delete($id);
+        header("Location: " . URL_ROOT . "/works");
     }
 }
