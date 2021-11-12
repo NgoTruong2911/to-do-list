@@ -4,7 +4,7 @@
 
 2) config host, database, username in config file
 
-2) Run composer install
+2) Run composer update
 
 2) if change name project, can config name of parent directory containing project to line 4 in public/.htaccess
 
